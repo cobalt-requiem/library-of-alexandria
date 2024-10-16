@@ -2,5 +2,9 @@
  A library of pre-patched ROM hacks 
  # How to download the entire repo
  Needed: Github CLI
- 1. Open Terminal/Command Promp
- 2. run 'git clone https://github.com/cobalt-requiem/library-of-alexandria'
+ 1. Open Terminal/Command Prompt
+ 2. run 'gh repo clone https://github.com/cobalt-requiem/library-of-alexandria'
+# How to download a lone folder
+Needed: GitHub CLI
+1. Open Terminal/Command Prompt
+2. run 'gh repo clone https://github.com/cobalt-requiem/library-of-alexandria/[INSERT FOLDER NAME]/
