@@ -5,7 +5,164 @@
 	<meta charset="utf-8">
 	<title>1v1.LOL | Building Simulator, Battle Royale & Shooting Game</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-	<link rel="stylesheet" href="style.css">
+	<style>
+	html {
+	box-sizing: border-box;
+}
+
+*,
+*:before,
+*:after {
+	box-sizing: inherit;
+}
+
+body {
+	margin: 0;
+	background: #000!important;
+}
+
+#gameContainer {
+	width: 100vw;
+	height: 100vh;
+	background: #000!important;
+}
+
+canvas {
+	width: 100%;
+	height: 100%;
+	display: block;
+}
+/* try to handle mobile dialog */
+
+canvas + * {
+	z-index: 2;
+}
+
+.logo {
+	display: block;
+	max-width: 15vw;
+	max-height: 15vh;
+}
+
+.progress {
+	margin: 1.5em;
+	border: 1px solid white;
+	width: 30vw;
+	display: none;
+}
+
+.progress .full {
+	margin: 2px;
+	background: white;
+	height: 1em;
+	transform-origin: top left;
+}
+
+#loader {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100vw;
+	height: 100vh;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+
+.spinner,
+.spinner:after {
+	border-radius: 50%;
+	width: 5em;
+	height: 5em;
+}
+
+.spinner {
+	margin: 10px;
+	font-size: 10px;
+	position: relative;
+	text-indent: -9999em;
+	border-top: 1.1em solid rgba(255, 255, 255, 0.2);
+	border-right: 1.1em solid rgba(255, 255, 255, 0.2);
+	border-bottom: 1.1em solid rgba(255, 255, 255, 0.2);
+	border-left: 1.1em solid #ffffff;
+	transform: translateZ(0);
+	animation: spinner-spin 1.1s infinite linear;
+}
+
+@keyframes spinner-spin {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
+}
+
+.ad {
+	position: absolute;
+	background: rgba(0, 0, 0, 0.4);
+	overflow: hidden;
+	z-index: 40;
+	display: none;
+}
+
+.modal{
+	background:rgba(0,0,0,.4);
+	display:none;
+	height:100%;
+	width: 100%;
+	position:fixed;
+	z-index:10000;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+}
+
+.modalContent{
+	margin: auto;
+	width: 100%;
+}
+
+.centered {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* The Close Button */
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+#continueWindow{
+	background-color: #fefefe;
+	margin: 15% auto;
+	padding: 20px;
+	border: 1px solid #888;
+	width: 30%;
+}
+
+#adWindow{
+	background: #4382f5;
+	border: 10px solid #4382f5;
+	width: 660px;
+	border-top: 0;
+	height: 540px;
+}
+	</style>
 </head>
 
 <body>
@@ -244,9 +401,262 @@
 	<script src="https://www.gstatic.com/firebasejs/6.3.4/firebase-auth.js"></script>
 	<script src="https://www.gstatic.com/firebasejs/6.3.4/firebase-firestore.js"></script>
 
-	<script src="firebase.js?v=%ciVersion%"></script>
-	<script src="login.js?v=%ciVersion%"></script>
-	<script src="fireStore.js?v=%ciVersion%"></script>
+	<script>
+	function initializeFireBase(){
+	// Your web app's Firebase configuration
+	var firebaseConfig = {
+	apiKey: "AIzaSyBPrAfspM9RFxuNuDtSyaOZ5YRjDBNiq5I",
+	authDomain: "1v1.lol",
+	databaseURL: "https://justbuild-cdb86.firebaseio.com",
+	projectId: "justbuild-cdb86",
+	storageBucket: "justbuild-cdb86.appspot.com",
+	messagingSenderId: "93158914000",
+	appId: "1:93158914000:web:e73a8b453338ab7c"
+	};
+	// Initialize Firebase
+	firebase.initializeApp(firebaseConfig);
+}
+
+function initializeFireBaseDev(){
+	// Your web app's Firebase configuration
+	var firebaseConfig = {
+	apiKey: "AIzaSyANZ0SDhqoc62msSooQFs3SEb4XbC7gvk4",
+	authDomain: "dev.1v1.lol",
+	databaseURL: "https://dev1v1.firebaseio.com",
+	projectId: "dev1v1",
+	storageBucket: "dev1v1.appspot.com",
+	messagingSenderId: "90097883404",
+	appId: "1:90097883404:android:0931a7bbf3e74f2b9a5129"
+	};
+	// Initialize Firebase
+	firebase.initializeApp(firebaseConfig);
+}	
+	</script>
+	<script>
+	var tempErrorCreds;
+var tempProviderName;
+
+function retrieveIdToken(successCallback, errorCallback) {
+	if(firebase.auth().currentUser === null){
+		if(errorCallback !== null) 
+			errorCallback("User is null");
+		return;
+	}
+
+	firebase.auth().currentUser.getIdToken().then(function (idToken) {
+		var resultObj = {
+			token: idToken,
+			displayName: firebase.auth().currentUser.displayName
+		};
+
+		if (successCallback !== undefined) {
+
+			successCallback(resultObj);
+		}
+	})
+		.catch(function (error) {
+			console.log(error);
+			if (errorCallback !== undefined)
+				errorCallback(error.message);
+		});
+}
+
+function anonymousLogin(successCallback, errorCallback) {
+	var resultObj = {
+		token: "",
+		displayName: "guest"
+	};
+
+	if (successCallback !== undefined) {
+
+		successCallback(resultObj);
+	}
+}
+
+function firebaseLogin(providerName, successCallback, errorCallback) {
+	if (providerName === "anonymous") {
+		anonymousLogin(successCallback, errorCallback);
+		return;
+	}
+
+	var user = firebase.auth().currentUser;
+
+	if(user != null && !user.isAnonymous){
+		retrieveIdToken(successCallback, errorCallback);
+		return;
+	}
+
+	var provider = getProvider(providerName);
+	firebase.auth().useDeviceLanguage();
+
+	//var task = firebase.auth().currentUser.isAnonymous ? firebase.auth().signInWithPopup(provider) : firebase.auth().linkWithPopup(provider);
+
+	firebase.auth().signInWithPopup(provider).then(function (result) {
+			console.log("Successful sign in");
+			retrieveIdToken(successCallback, errorCallback);
+		})
+		.catch(function (error) {
+			// Handle Errors here.
+			var errorCode = error.code;
+			var errorMessage = error.message;
+			// The email of the user's account used.
+			var email = error.email;
+			// The firebase.auth.AuthCredential type that was used.
+			tempErrorCreds = error.credential;
+			console.log(error);
+
+			if (errorCallback !== undefined)
+				errorCallback(error.message);
+
+			if (errorCode === 'auth/account-exists-with-different-credential') {
+				// User's email already exists.
+				// Get sign-in methods for this email.
+				firebase.auth().fetchSignInMethodsForEmail(email).then(function (methods) {
+					// the first method in the list will be the "recommended" method to use.
+					if (methods.length == 0)
+						return;
+					// Sign in to provider.
+					tempProviderName = methods[0].trim();
+					setModalContent("generalModalContent",
+						"<div id =\"continueWindow\"><span class=\"close\" id=\"closeButton\" onclick=\"hideModal('generalModal')\">&times;</span><p>Please press the button to login: </p><button onclick=\"continueLogin()\">Continue Login</button></div>");
+					showModal("generalModal");
+				});
+			}
+		});
+}
+
+function firebaseLogout() {
+	firebase.auth().signOut().catch(function (error) {
+		console.log(error);
+	});
+}
+
+function getCurrentUserDisplayName() {
+	var user = firebase.auth().currentUser;
+	var displayName = "";
+	if (user) {
+		displayName = user.displayName;
+	}
+	return displayName;
+}
+
+function getProvider(providerName) {
+	if (providerName && providerName.indexOf("facebook") != -1)
+		return new firebase.auth.FacebookAuthProvider()
+	else
+		return new firebase.auth.GoogleAuthProvider()
+}
+
+function setModalContent(modalContentId, contentString) {
+	content = document.getElementById(modalContentId);
+	if (content) {
+		content.innerHTML = contentString;
+	}
+
+}
+
+function continueLogin() {
+	hideModal("generalModal");
+	var provider = getProvider(tempProviderName);
+	firebase.auth().signInWithPopup(provider).then(
+		function (result) {
+			if (!tempErrorCreds) {
+				return;
+			}
+			// As we have access to the pending credential, we can directly call the link method.
+			result.user.linkAndRetrieveDataWithCredential(tempErrorCreds).then(function (usercred) {
+				//goToApp();
+			});
+		});
+
+}
+
+function showModal(modalId) {
+	modal = document.getElementById(modalId);
+	if (modal)
+		modal.style.display = "block";
+}
+
+function hideModal(modalId) {
+	modal = document.getElementById(modalId);
+	if (modal)
+		modal.style.display = "none";
+}
+	</script>
+	<script>
+	var db;
+
+function initializeFirestore()
+{
+	db = firebase.firestore();
+}
+
+//TODO: add subcollections support 
+
+function addDocument(collectionName, data, isJson){
+	if(!db || !collectionName)
+		return;
+	
+	if(isJson){
+		try {
+			data = JSON.parse(data);
+		} catch(error){ 
+			console.log("Couldnt insert data to db, invalid json");
+			return;
+		}
+	}
+		
+	return db.collection(collectionName).add(data);
+}
+
+function setDocument(collectionName, documentName, data, isJson, isMerge){
+	if(!db || !collectionName || !documentName)
+		return;
+	
+	if(isJson){
+		try {
+			data = JSON.parse(data);
+		} catch(error){ 
+			console.log("Couldnt insert data to db, invalid json");
+			return;
+		}
+	}
+		
+	return db.collection(collectionName).doc(documentName).set(data, { merge: isMerge });
+}
+
+function updateDocument(collectionName, documentName, data, isJson){
+	// TODO: add support for arrays
+	if(!db || !collectionName || !documentName)
+		return;
+	
+	if(isJson){
+		try {
+			data = JSON.parse(data);
+		} catch(error){ 
+			console.log("Couldnt insert data to db, invalid json");
+			return;
+		}
+	}
+		
+	return db.collection(collectionName).doc(documentName).update(data);
+}
+
+function deleteDocument(collectionName, documentName){
+	if(!db || !collectionName || !documentName)
+		return;
+		
+	return db.collection(collectionName).doc(documentName).delete();
+}
+
+function getDocument(collectionName, documentName){
+	if(!db || !collectionName || !documentName)
+		return;
+		
+	return db.collection(collectionName).doc(documentName).get();
+}
+
+	</script>
 
 	<script>
 		var hostname = window.location.hostname;
