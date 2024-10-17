@@ -10,4 +10,5 @@ Needed: GitHub CLI
 2. run 'gh repo clone https://github.com/cobalt-requiem/library-of-alexandria/ [INSERT FOLDER NAME]
 # How to run these files
 HTML: Just run the file, HTML files work on nearly *every* piece of hardware in existence.
+<br>
 Anything else: Use an emulator. An emulator is hardware or software that **emulates** other software. You can find one yourself,  you're not _that stupid._
