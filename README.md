@@ -1,5 +1,5 @@
 # library-of-alexandria
- A library of pre-patched ROM hacks 
+ A library of unblocked media for school
  # How to download the entire repo
  Needed: Github CLI
  1. Open Terminal/Command Prompt
